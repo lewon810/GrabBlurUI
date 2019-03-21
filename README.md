@@ -2,6 +2,8 @@
 GrabTextureを使って狙ったUIの後ろにBlurをかける
 シェーダーパラメータのみで動くので導入が楽ちん
 
+https://user-images.githubusercontent.com/9998998/54770771-437a7a80-4c47-11e9-92ba-cdac3f636cfb.png
+
 参考にさせていただいたコード
 http://memo.devjam.net/clip/827
 
