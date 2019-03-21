@@ -1,2 +1,11 @@
 # GrabBlurUI
-GrabTextureを使ってUIより後ろにBlurをかける
+GrabTextureを使って狙ったUIの後ろにBlurをかける
+シェーダーパラメータのみで動くので導入が楽ちん
+
+参考にさせていただいたコード
+http://memo.devjam.net/clip/827
+
+forの回数が増えると処理が比例するように重くなるためもろもろ省いてるがまだ重い
+家の貧弱Windowsでblursize20にして回まわすとだいたい30FPSがギリギリ
+
+もっと軽いアルゴリズムに変えれば使い物になるかも
