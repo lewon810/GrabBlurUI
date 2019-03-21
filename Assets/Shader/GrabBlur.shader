@@ -15,6 +15,10 @@ Shader "UI/GrabBlur"
 
         _ColorMask ("Color Mask", Float) = 15
 
+		_BlurSize("Blur Size", Float)=1
+		_Width("Width", Float)=1280
+		_Height("Height", Float)=720
+
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
     }
 
@@ -101,14 +105,50 @@ Shader "UI/GrabBlur"
 
 			sampler2D _GrabTex;
             sampler2D _MainTex;
+			float _BlurSize;
+			float _Width;
+			float _Height;
 
             fixed4 frag(v2f IN) : SV_Target
             {
                 half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
 				half4 grabColor = (tex2D(_GrabTex, IN.texcoord));
 
+				//blur params
+				float v;
+				float pi = 3.141592653589793;
+				float e_step = 1.0 / _Width;
+				float radius = max(_BlurSize , 0);
+				int steps = int(min(radius * 0.7, sqrt(radius) * pi));
+				float r = radius / steps;
+				float t = 1.0 / (steps * 2 + 1);
+				float x =IN.texcoord.x;
+				float y =IN.texcoord.y;
+
+				//blur horizontal
+				half4 sum = tex2D(_GrabTex, float2(x, y)) * t;
+				int i;
+				for(i = 1; i <= steps; i++){
+					v = (cos(i / (steps + 1) / pi) + 1) * 0.5;
+					sum += tex2D(_GrabTex, float2(x + i * e_step * r, y)) * v * t;
+					sum += tex2D(_GrabTex, float2(x - i * e_step * r, y)) * v * t;
+					sum += tex2D(_GrabTex, float2(x, y + i * e_step * r)) * v * t;
+					sum += tex2D(_GrabTex, float2(x, y - i * e_step * r)) * v * t;
+				}
+
+				#ifdef false
+				//blur vertical
+				e_step = 1.0 / _Height;
+				half4 sum2 = tex2D(_GrabTex, float2(x, y)) * t;
+				for(i = 1; i <= steps; i++){
+					v = (cos(i / (steps + 1) / pi) + 1) * 0.5;
+					sum += tex2D(_GrabTex, float2(x, y + i * e_step * r)) * v * t;
+					sum += tex2D(_GrabTex, float2(x, y - i * e_step * r)) * v * t;
+				}
+				#endif
+
 				//alpha blend
-				color = (color.a * grabColor) + (color * (1.0 - color.a));
+				color = (color.a * sum) + (color * (1.0 - color.a));
 				color.a = 1;
 
                 #ifdef UNITY_UI_CLIP_RECT
