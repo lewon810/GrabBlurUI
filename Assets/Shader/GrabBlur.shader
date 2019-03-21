@@ -119,7 +119,7 @@ Shader "UI/GrabBlur"
 				float pi = 3.141592653589793;
 				float e_step = 1.0 / _Width;
 				float radius = max(_BlurSize , 0);
-				int steps = int(min(radius * 0.7, sqrt(radius) * pi));
+				int steps = _BlurSize;
 				float r = radius / steps;
 				float t = 1.0 / (steps * 2 + 1);
 				float x =IN.texcoord.x;
@@ -129,23 +129,12 @@ Shader "UI/GrabBlur"
 				half4 sum = tex2D(_GrabTex, float2(x, y)) * t;
 				int i;
 				for(i = 1; i <= steps; i++){
-					v = (cos(i / (steps + 1) / pi) + 1) * 0.5;
+					v =1; // (cos(i / (steps + 1) / pi) + 1) * 0.5;
 					sum += tex2D(_GrabTex, float2(x + i * e_step * r, y)) * v * t;
 					sum += tex2D(_GrabTex, float2(x - i * e_step * r, y)) * v * t;
 					sum += tex2D(_GrabTex, float2(x, y + i * e_step * r)) * v * t;
 					sum += tex2D(_GrabTex, float2(x, y - i * e_step * r)) * v * t;
 				}
-
-				#ifdef false
-				//blur vertical
-				e_step = 1.0 / _Height;
-				half4 sum2 = tex2D(_GrabTex, float2(x, y)) * t;
-				for(i = 1; i <= steps; i++){
-					v = (cos(i / (steps + 1) / pi) + 1) * 0.5;
-					sum += tex2D(_GrabTex, float2(x, y + i * e_step * r)) * v * t;
-					sum += tex2D(_GrabTex, float2(x, y - i * e_step * r)) * v * t;
-				}
-				#endif
 
 				//alpha blend
 				color = (color.a * sum) + (color * (1.0 - color.a));
